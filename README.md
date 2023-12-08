@@ -8,7 +8,9 @@ Please refer to the `sdcnet` branch if you are looking for the code correspondin
 
 * The code is tested with pytorch 1.3 and python 3.6
 * You can use ./Dockerfile to build an image.
-
++ Also can `sh install.sh`
+> the version of torch should no higher than 2.0.0. otherwise, the following error occurs.
+> the apex is recommanded to install the 22.04-dev branch instead of master branch. The apex has already cloned from official repo.
 
 ## Download Weights
 
@@ -80,7 +82,7 @@ The reported IOU should be 61.05. Note that this must be run on a 32GB node and 
 
 This will dump network output and composited images from running evaluation with the Cityscapes validation set. 
 
-### Run inference and dump images on a folder of images
+### Run inference and dump images on a folder of images (custom images)
 
 ```bash
 > python -m runx.runx scripts/dump_folder.yml -i
@@ -89,6 +91,9 @@ This will dump network output and composited images from running evaluation with
 You should end up seeing images that look like the following:
 
 ![alt text](imgs/composited_sf.png "example inference, composited")
+
+The size of the input image should be cropped based on the memory of GPUs.
+You can crop the large image into smaller images, and then process them.
 
 ## Train a model
 
@@ -106,3 +111,19 @@ This training run should deliver a model that achieves 84.7 IOU.
 > python -m runx.runx  scripts/train_cityscapes_sota.yml -i
 ```
 Again, use `-n` to do a dry run and just print out the command. This should result in a model with 86.8 IOU. If you run out of memory, try to lower the crop size or turn off rmi_loss.
+
+## Trouble shooting
+1. The `_six` is deprecated in torch.
+> ImportError: cannot import name ‘string_classes‘ from ‘torch._six‘
++ [Solution](https://blog.csdn.net/u010684651/article/details/121018127), replace the `from torch._six import string_classes` with `string_classes=str`
+2. the version of torch is too high
+> train.py: error: unrecognized arguments: --local-rank=0
++ Solution: decrease the version of torch to 1.13.0. In torch2.0+, the related argument is refactored as `--local_rank`, however inside runx.runx is  still `--local-rank`.
+1. the version of numpy is too high
+> AttributeError: module 'numpy' has no attribute 'int'.
++ Solution1: using lower version of numpy, e.g. 1.19.0
++ Solution2: directly replace the `np.int` into `int`, at the corresponding position. Here in this repo is `self.high_level_ch = np.int(np.sum(pre_stage_channels))` into `self.high_level_ch = int(np.sum(pre_stage_channels))` at file hrnetv2.py.
+
+## Results analysis
++ low-scale is under-segmented
++ high-scale is over-segmentated
