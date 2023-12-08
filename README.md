@@ -9,7 +9,7 @@ Please refer to the `sdcnet` branch if you are looking for the code correspondin
 * The code is tested with pytorch 1.3 and python 3.6
 * You can use ./Dockerfile to build an image.
 + Also can `sh install.sh`
-> the version of torch should no higher than 2.0.0. otherwise, the following error occurs.
+> The version of torch should no higher than 2.0.0, otherwise, the following error occurs.
 > the apex is recommanded to install the 22.04-dev branch instead of master branch. The apex has already cloned from official repo.
 
 ## Download Weights
@@ -116,10 +116,10 @@ Again, use `-n` to do a dry run and just print out the command. This should resu
 1. The `_six` is deprecated in torch.
 > ImportError: cannot import name ‘string_classes‘ from ‘torch._six‘
 + [Solution](https://blog.csdn.net/u010684651/article/details/121018127), replace the `from torch._six import string_classes` with `string_classes=str`
-2. the version of torch is too high
+2. The version of torch is too high
 > train.py: error: unrecognized arguments: --local-rank=0
 + Solution: decrease the version of torch to 1.13.0. In torch2.0+, the related argument is refactored as `--local_rank`, however inside runx.runx is  still `--local-rank`.
-1. the version of numpy is too high
+3. The version of numpy is too high
 > AttributeError: module 'numpy' has no attribute 'int'.
 + Solution1: using lower version of numpy, e.g. 1.19.0
 + Solution2: directly replace the `np.int` into `int`, at the corresponding position. Here in this repo is `self.high_level_ch = np.int(np.sum(pre_stage_channels))` into `self.high_level_ch = int(np.sum(pre_stage_channels))` at file hrnetv2.py.
